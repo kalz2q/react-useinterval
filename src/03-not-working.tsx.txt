@@ -1,0 +1,58 @@
+import React from 'react';
+import './App.css';
+// 
+const { useEffect, useRef, useState } = React;
+
+function App() {
+  const [count, setCount] = useState(0);
+  const [delay, setDelay] = useState(1000);
+  const [isRunning, setIsRunning] = useState(true);
+
+  const useInterval = (callback: Function, delay?: number) => {
+    const savedCallback = useRef<Function>(() => { });
+    useEffect(() => {
+      savedCallback.current = callback;
+    }, [callback]);
+    useEffect(() => {
+      if (delay !== null) {
+        const interval = setInterval(() => savedCallback.current(), delay);
+        return () => clearInterval(interval);
+      }
+      return undefined;
+    }, [delay]);
+
+    useInterval(
+      () => {
+        console.log("render:", count); // 確認用
+        setCount(count + 1);
+      },
+      isRunning ? delay : 0
+    );
+    const handleDelayChange: React.ChangeEventHandler<HTMLInputElement> = (
+      event
+    ) => {
+      setDelay(Number(event.target.value));
+    };
+    const handleIsRunningChange: React.ChangeEventHandler<HTMLInputElement> = (
+      event
+    ) => {
+      setIsRunning(event.target.checked);
+    };
+    return (
+      <div className="App">
+        <h1>{count}</h1>
+        <input
+          type="checkbox"
+          checked={isRunning}
+          onChange={handleIsRunningChange}
+        />{" "}
+        Running
+        <br />
+        <input type="number" value={delay} onChange={handleDelayChange} />
+      </div>
+    );
+
+  };
+}
+
+export default App;
